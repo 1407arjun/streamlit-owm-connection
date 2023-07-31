@@ -29,12 +29,21 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
         return self.session
     
     @overload
-    def current(self, name: str, ttl: Optional[Union[float, int, timedelta]] = None):
+    def weather(self, name: str, type: Optional[str] = None, ttl: Optional[Union[float, int, timedelta]] = None):
         pass
 
-    def current(self, lat: float, lon: float, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
-        @cache_data(ttl=ttl, show_spinner="Loading city weather...")
-        def weather_by_city(lat: float, lon: float):
+    def weather(self, lat: float, lon: float, type: Optional[str] = None, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
+        @cache_data(ttl=ttl, show_spinner="Loading current weather...")
+        def current(lat: float, lon: float):
+            r = self.session.get(f"{BASE_URL}/weather?lat={lat}&lon={lon}&appid={self.appid}")
+            return r.json()
+        
+        @cache_data(ttl=ttl, show_spinner="Loading weather forcast...")
+        def forcast(lat: float, lon: float):
             r = self.session.get(f"{BASE_URL}/forecast?lat={lat}&lon={lon}&appid={self.appid}")
             return r.json()
-        return weather_by_city(lat, lon)
+        
+        if type == "forcast":
+            return forcast(lat, lon)
+        else:
+            return current(lat, lon)
