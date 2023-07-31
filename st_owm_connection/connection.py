@@ -32,8 +32,21 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
         return self.__appid
     
     @overload
-    def weather(self, name: str, type: Optional[str] = None, ttl: Optional[Union[float, int, timedelta]] = None):
-        pass
+    def weather(self, query: str, type: Optional[str] = None, ttl: Optional[Union[float, int, timedelta]] = None):
+        @cache_data(ttl=ttl, show_spinner=f"Loading current weather for {query}...")
+        def current(query: str):
+            r = self.session.get(f"{BASE_URL}/weather?q={query}&appid={self.get_appid()}")
+            return r.json()
+        
+        @cache_data(ttl=ttl, show_spinner=f"Loading weather forcast for {query}...")
+        def forcast(query: str):
+            r = self.session.get(f"{BASE_URL}/forecast?q={query}&appid={self.get_appid()}")
+            return r.json()
+        
+        if type == "forcast":
+            return forcast(query)
+        else:
+            return current(query)
 
     def weather(self, lat: float, lon: float, type: Optional[str] = None, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
         @cache_data(ttl=ttl, show_spinner="Loading current weather...")
