@@ -33,34 +33,49 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
         return self.__appid
     
     @overload
-    def weather(self, query: str, type: Optional[str] = None, ttl: Optional[Union[float, int, timedelta]] = None):
-        @cache_data(ttl=ttl, show_spinner=f"Loading current weather for {query}...")
-        def current(query: str):
-            r = self.session.get(f"{BASE_URL}/weather?q={query}&appid={self.get_appid()}")
-            return r.json()
-        
-        @cache_data(ttl=ttl, show_spinner=f"Loading weather forcast for {query}...")
-        def forcast(query: str):
-            r = self.session.get(f"{BASE_URL}/forecast?q={query}&appid={self.get_appid()}")
-            return r.json()
-        
-        if type == "forcast":
-            return forcast(query)
-        else:
-            return current(query)
+    def current(self, query: str, ttl: Optional[Union[float, int, timedelta]] = None):
+        pass
 
-    def weather(self, lat: float, lon: float, type: Optional[str] = None, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
+    @overload
+    def current(self, lat: float, lon: float, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
+       pass 
+        
+    def current(self, q: str | float, lon: float | None = None, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
+        @cache_data(ttl=ttl, show_spinner=f"Loading current weather for {q}...")
+        def query(q: str):
+            r = self.session.get(f"{BASE_URL}/weather?q={q}&appid={self.get_appid()}")
+            return r.json()
+        
         @cache_data(ttl=ttl, show_spinner="Loading current weather...")
-        def current(lat: float, lon: float):
+        def latlon(lat: float, lon: float):
             r = self.session.get(f"{BASE_URL}/weather?lat={lat}&lon={lon}&appid={self.get_appid()}")
             return r.json()
         
-        @cache_data(ttl=ttl, show_spinner="Loading weather forcast...")
-        def forcast(lat: float, lon: float):
-            r = self.session.get(f"{BASE_URL}/forecast?lat={lat}&lon={lon}&appid={self.get_appid()}")
+        if isinstance(q, str):
+            return query(q)
+        else:
+            return latlon(q, lon)
+
+    @overload
+    def forecast(self, query: str, ttl: Optional[Union[float, int, timedelta]] = None):
+        pass
+
+    @overload
+    def forecast(self, lat: float, lon: float, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
+       pass 
+        
+    def forecast(self, q: str | float, lon: float | None = None, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
+        @cache_data(ttl=ttl, show_spinner=f"Loading weather forecast for {q}...")
+        def query(q: str):
+            r = self.session.get(f"{BASE_URL}/forecast?q={q}&appid={self.get_appid()}")
             return r.json()
         
-        if type == "forcast":
-            return forcast(lat, lon)
+        @cache_data(ttl=ttl, show_spinner="Loading weather forecast...")
+        def latlon(lat: float, lon: float):
+            r = self.session.get(f"{BASE_URL}/weather?lat={lat}&lon={lon}&appid={self.get_appid()}")
+            return r.json()
+        
+        if isinstance(q, str):
+            return query(q)
         else:
-            return current(lat, lon)
+            return latlon(q, lon)
