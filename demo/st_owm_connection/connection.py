@@ -3,12 +3,17 @@ from requests.sessions import Session
 from streamlit.connections import ExperimentalBaseConnection
 from streamlit.runtime.caching import cache_data
 
-from typing import Any, Union, Optional, overload
+from typing import Any, Union, Optional, Literal, overload
 from datetime import timedelta
 
 BASE_URL = "https://api.openweathermap.org/data/2.5"
+PRO_URL = "https://pro.openweathermap.org/data/2.5"
 
 class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
+    __appid: str | None
+    units: Literal["standard", "metric", "imperial"] = "standard"
+    lang: str = "en"
+
     def _connect(self, **kwargs) -> Session:
         self.__appid = None
         if 'appid' in kwargs:
@@ -21,6 +26,12 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
                     raise ValueError("AppID/API Key not provided in secrets")
                 else:
                     self.__appid = secrets.pop("appid", None)
+
+        if 'units' in kwargs:
+            self.units = kwargs.pop('units')
+
+        if 'lang' in kwargs:
+            self.lang = kwargs.pop('lang')
         
         self.session = requests.Session()
         return self.session
@@ -29,53 +40,83 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
         self.session.close()
         self.session = requests.Session()
     
-    def get_appid(self) -> str:
+    def __get_appid(self) -> str:
         return self.__appid
     
-    @overload
-    def current(self, query: str, ttl: Optional[Union[float, int, timedelta]] = None):
-        pass
+    def set_units(self, units: Literal["standard", "metric", "imperial"]):
+        self.units = units
 
-    @overload
-    def current(self, lat: float, lon: float, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
-       pass 
-        
-    def current(self, q: str | float, lon: float | None = None, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
+    def set_lang(self, lang: str):
+        self.lang = lang
+    
+    # Call current weather data
+    def current(self, q: str = None, lat: float = None, lon: float = None, id: int = None, zip: str = None, units: Literal["standard", "metric", "imperial"] = None, lang: str = None, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
+        units = units if units else self.units
+        lang = lang if lang else self.lang
+
         @cache_data(ttl=ttl, show_spinner=f"Loading current weather for {q}...")
         def query(q: str):
-            r = self.session.get(f"{BASE_URL}/weather?q={q}&appid={self.get_appid()}")
+            r = self.session.get(f"{BASE_URL}/weather?q={q}&appid={self.__get_appid()}&units={units}&lang={lang}")
             return r.json()
         
-        @cache_data(ttl=ttl, show_spinner="Loading current weather...")
+        @cache_data(ttl=ttl, show_spinner=f"Loading current weather for {lat}, {lon}...")
         def latlon(lat: float, lon: float):
-            r = self.session.get(f"{BASE_URL}/weather?lat={lat}&lon={lon}&appid={self.get_appid()}")
+            r = self.session.get(f"{BASE_URL}/weather?lat={lat}&lon={lon}&appid={self.__get_appid()}&units={units}&lang={lang}")
             return r.json()
         
-        if isinstance(q, str):
-            return query(q)
-        else:
-            return latlon(q, lon)
-
-    @overload
-    def forecast(self, query: str, ttl: Optional[Union[float, int, timedelta]] = None):
-        pass
-
-    @overload
-    def forecast(self, lat: float, lon: float, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
-       pass 
+        @cache_data(ttl=ttl, show_spinner=f"Loading current weather for {zip}...")
+        def cityid(id: str):
+            r = self.session.get(f"{BASE_URL}/weather?id={id}&appid={self.__get_appid()}&units={units}&lang={lang}")
+            return r.json()
         
-    def forecast(self, q: str | float, lon: float | None = None, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
+        @cache_data(ttl=ttl, show_spinner=f"Loading current weather for {zip}...")
+        def zipcode(zip: str):
+            r = self.session.get(f"{BASE_URL}/weather?zip={zip}&appid={self.__get_appid()}&units={units}&lang={lang}")
+            return r.json()
+
+        if q is not None:
+            return query(q=q)
+        elif lat is not None and lon is not None:
+            return latlon(lat=lat, lon=lon)
+        elif id is not None:
+            return cityid(id=id)
+        elif zip is not None:
+            return zipcode(zip=zip)
+        else:
+            return None
+        
+    # Call 5 day / 3 hour forecast data
+    def forecast(self, q: str = None, lat: float = None, lon: float = None, id: int = None, zip: str = None, cnt: int = None, units: Literal["standard", "metric", "imperial"] = None, lang: str = None, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
+        units = units if units else self.units
+        lang = lang if lang else self.lang
+
         @cache_data(ttl=ttl, show_spinner=f"Loading weather forecast for {q}...")
         def query(q: str):
-            r = self.session.get(f"{BASE_URL}/forecast?q={q}&appid={self.get_appid()}")
+            r = self.session.get(f"{BASE_URL}/forecast?q={q}&appid={self.__get_appid()}&units={units}&lang={lang}{'&cnt=' + cnt if cnt else ''}")
             return r.json()
         
-        @cache_data(ttl=ttl, show_spinner="Loading weather forecast...")
+        @cache_data(ttl=ttl, show_spinner=f"Loading weather forecast for {lat}, {lon}...")
         def latlon(lat: float, lon: float):
-            r = self.session.get(f"{BASE_URL}/weather?lat={lat}&lon={lon}&appid={self.get_appid()}")
+            r = self.session.get(f"{BASE_URL}/forecast?lat={lat}&lon={lon}&appid={self.__get_appid()}&units={units}&lang={lang}{'&cnt=' + cnt if cnt else ''}")
             return r.json()
         
-        if isinstance(q, str):
-            return query(q)
+        @cache_data(ttl=ttl, show_spinner=f"Loading weather forecast for {zip}...")
+        def cityid(id: str):
+            r = self.session.get(f"{BASE_URL}/forecast?id={id}&appid={self.__get_appid()}&units={units}&lang={lang}{'&cnt=' + cnt if cnt else ''}")
+            return r.json()
+        
+        @cache_data(ttl=ttl, show_spinner=f"Loading weather forecast for {zip}...")
+        def zipcode(zip: str):
+            r = self.session.get(f"{BASE_URL}/forecast?zip={zip}&appid={self.__get_appid()}&units={units}&lang={lang}{'&cnt=' + cnt if cnt else ''}")
+            return r.json()
+
+        if q is not None:
+            return query(q=q)
+        elif lat is not None and lon is not None:
+            return latlon(lat=lat, lon=lon)
+        elif id is not None:
+            return cityid(id=id)
+        elif zip is not None:
+            return zipcode(zip=zip)
         else:
-            return latlon(q, lon)
+            return None
