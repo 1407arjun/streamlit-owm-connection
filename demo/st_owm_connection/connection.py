@@ -123,3 +123,6 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
             return zipcode(zip=zip)
         else:
             return None
+        
+    def get_icon_url(id: str):
+        return f"https://openweathermap.org/img/wn/{id}@2x.png"
