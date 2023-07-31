@@ -36,13 +36,16 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
         self.session = requests.Session()
         return self.session
     
+    # Private method to get the AppID within the conncection class
+    def __get_appid(self) -> str:
+        return self.__appid
+    
+    # Reset and return a new connection with the same AppID
     def reset(self):
         self.session.close()
         self.session = requests.Session()
     
-    def __get_appid(self) -> str:
-        return self.__appid
-    
+    # Setters for units and language preferences
     def set_units(self, units: Literal["standard", "metric", "imperial"]):
         self.units = units
 
@@ -84,7 +87,8 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
             return zipcode(zip=zip)
         else:
             return None
-        
+    
+    # Call 5 day / 3 hour, 16 day / daily, hourly forecast data or climate forecast for 30 days
     def forecast(self, type: Literal["3hr", "daily", "hourly", "climate"] = "3hr", q: str = None, lat: float = None, lon: float = None, id: int = None, zip: str = None, cnt: int = None, units: Literal["standard", "metric", "imperial"] = None, lang: str = None, ttl: Optional[Union[float, int, timedelta]] = None) -> Any:
         units = units if units else self.units
         lang = lang if lang else self.lang
@@ -124,5 +128,6 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
         else:
             return None
         
-    def get_icon_url(id: str):
+    # Utility function to get the icon URL
+    def get_icon_url(id: str) -> str:
         return f"https://openweathermap.org/img/wn/{id}@2x.png"
