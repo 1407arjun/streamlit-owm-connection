@@ -10,6 +10,7 @@ BASE_URL = "https://api.openweathermap.org/data/2.5"
 
 class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
     def _connect(self, **kwargs) -> Session:
+        self.appid = None
         if 'appid' in kwargs:
             self.appid = kwargs.pop('appid')
         
