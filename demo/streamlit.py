@@ -1,5 +1,5 @@
 import streamlit as st
-from connection import OpenWeatherMapConnection
+from st_owm_connection import OpenWeatherMapConnection
 
 st.set_page_config(
     page_title='OpenWeatherMap API Explorer',

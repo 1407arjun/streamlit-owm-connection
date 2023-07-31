@@ -10,23 +10,26 @@ BASE_URL = "https://api.openweathermap.org/data/2.5"
 
 class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
     def _connect(self, **kwargs) -> Session:
-        self.appid = None
         if 'appid' in kwargs:
             self.appid = kwargs.pop('appid')
-        
-        if self.appid is None:
-            secrets = self._secrets.to_dict()
+        else:
+            if self.appid is None:
+                secrets = self._secrets.to_dict()
 
-            if secrets.get("appid") == None:
-                raise ValueError("AppID/API Key not provided in secrets")
-            else:
-                self.appid = secrets.pop("appid", None)
+                if secrets.get("appid") == None:
+                    raise ValueError("AppID/API Key not provided in secrets")
+                else:
+                    self.appid = secrets.pop("appid", None)
         
         self.session = requests.Session()
         return self.session
     
     def session(self) -> Session:
         return self.session
+
+    def reset(self):
+        self.session.close()
+        self.session = requests.Session()
     
     @overload
     def weather(self, name: str, type: Optional[str] = None, ttl: Optional[Union[float, int, timedelta]] = None):
