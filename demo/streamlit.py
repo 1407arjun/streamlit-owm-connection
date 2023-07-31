@@ -11,4 +11,6 @@ longitude = st.number_input("Enter the longitude", key='lon', min_value=-180.00,
 
 conn = st.experimental_connection('owm', type=OpenWeatherMapConnection)
 
+# Get the connection session using conn.session attribute
+
 st.json(conn.current(latitude, longitude))
