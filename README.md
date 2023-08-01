@@ -47,6 +47,8 @@ conn = st.experimental_connection('owm', type=OpenWeatherMapConnection, units="m
 ### current()
 Returns the current weather at the given location. Refer to the [OpenWeatherMap API docs](https://openweathermap.org/current) for additional information related to response formats and other endpoint-related taxonomy.
 
+> Requires a free OpenWeatherMap API Key.
+
 It takes in any one of the following named arguments at a time:
 - `q`: The name of the city or city, state code, country code.
 - `lat` and `lon`: The latitude and longitude of the location as floating point numbers.
@@ -82,6 +84,10 @@ print(conn.current(zip="94105,US"))
 
 ### forecast()
 Returns the 3-hour/daily/hourly/30-day weather forecast for the given location. Refer to the corresponding OpenWeatherMap API docs pf [3-hour](https://openweathermap.org/forecast5), [daily](https://openweathermap.org/forecast16), [hourly](https://openweathermap.org/api/hourly-forecast) and [30-day](https://openweathermap.org/api/forecast30) forecasts for additional information related to response formats and other endpoint-related taxonomy.
+
+> 3-hour forecast requires a free OpenWeatherMap API Key.
+> Daily forecast requires at least a Startup plan OpenWeatherMap API Key.
+> Hourly and 30-day forecast requires at least a Developer plan OpenWeatherMap API Key.
 
 The `type` positional argument is mandatory and should be one of the following (defaults to 3-hour forecast):
 - `3hr`: Call 5 day / 3 hour forecast data.
@@ -122,3 +128,9 @@ print(conn.forecast("hourly", id=833))
 # Get 30-day weather forecast by zipcode
 print(conn.forecast("climate", zip="94105,US"))
 ```
+
+## Setter methods
+
+### set_units(units: Literal["standard", "metric", "imperial"])
+Updates the global units preference to the value passed to the function. Must be one from standard/metric/imperial.
+
