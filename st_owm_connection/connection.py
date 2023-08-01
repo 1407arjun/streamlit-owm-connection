@@ -3,7 +3,7 @@ from requests.sessions import Session
 from streamlit.connections import ExperimentalBaseConnection
 from streamlit.runtime.caching import cache_data
 
-from typing import Any, Union, Optional, Literal, overload
+from typing import Any, Union, Optional, Literal
 from datetime import timedelta
 
 BASE_URL = "https://api.openweathermap.org/data/2.5"
@@ -11,7 +11,7 @@ PRO_URL = "https://pro.openweathermap.org/data/2.5"
 
 
 class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
-    __appid: str | None
+    __appid: Union[str, None]
     units: Literal["standard", "metric", "imperial"] = "standard"
     lang: str = "en"
 
