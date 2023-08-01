@@ -7,8 +7,19 @@ st.set_page_config(
 )
 
 st.title("🌤️ OpenWeatherMap API Explorer")
+"""
+This weather app is a quick prototype of using st.experimental_connection
+with the OpenWeatherMap API to retrieve the current weather data for a given 
+location using its name, coordinates, IDs or zipcodes. View the full app code 
+[here](https://github.com/1407arjun/streamlit-owm-connection/tree/main/demo).
 
-# OpenWeatherMap API connection
+Although this example demonstrates the use of the current weather endpoint using the `conn.current()` method, 
+the connection also provides the `conn.forecast()` method to retrieve the 3 hour/daily/hourly/30 day forecasts
+for a given location using its name, coordinates, IDs or zipcodes, by passing in the appropriate type of forecast
+required. View the connection docs [here](https://github.com/1407arjun/streamlit-owm-connection/tree/main/README.md).
+"""
+
+# OpenWeatherMap API connection (AppID/API Key loaded from secrets)
 conn = st.experimental_connection('owm', type=OpenWeatherMapConnection)
 
 # Get the connection session using conn.session attribute
