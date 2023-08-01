@@ -86,7 +86,9 @@ print(conn.current(zip="94105,US"))
 Returns the 3-hour/daily/hourly/30-day weather forecast for the given location. Refer to the corresponding OpenWeatherMap API docs pf [3-hour](https://openweathermap.org/forecast5), [daily](https://openweathermap.org/forecast16), [hourly](https://openweathermap.org/api/hourly-forecast) and [30-day](https://openweathermap.org/api/forecast30) forecasts for additional information related to response formats and other endpoint-related taxonomy.
 
 > 3-hour forecast requires a free OpenWeatherMap API Key.
+
 > Daily forecast requires at least a Startup plan OpenWeatherMap API Key.
+
 > Hourly and 30-day forecast requires at least a Developer plan OpenWeatherMap API Key.
 
 The `type` positional argument is mandatory and should be one of the following (defaults to 3-hour forecast):
@@ -95,7 +97,7 @@ The `type` positional argument is mandatory and should be one of the following (
 - `hourly`: Call hourly forecast data.
 - `climate`: Call weather forecast for 30 days.
 
-Similar to the `current` function, It takes in any one of the following named arguments at a time:
+Similar to the `current` function, it takes in any one of the following named arguments at a time:
 - `q`: The name of the city or city, state code, country code.
 - `lat` and `lon`: The latitude and longitude of the location as floating point numbers.
 - `id`: The city ID, an integer value. Refer to the OpenWeatherMap API docs for a list of valid city IDs.
@@ -129,7 +131,7 @@ print(conn.forecast("hourly", id=833))
 print(conn.forecast("climate", zip="94105,US"))
 ```
 
-### reset() -> requests.sessions.Session
+### reset()
 Closes the current session and connection and creates a new [requests session](https://requests.readthedocs.io/en/latest/user/advanced/#session-objects), having the same AppID thereby resetting the previous connection.
 
 ### session
@@ -152,7 +154,7 @@ conn.set_units("imperial") #Equivalent to conn.units = "imperial"
 ### set_lang(lang: str)
 `conn.set_lang()` updates the global output language preference to the value passed to the function. View the supported languages and their codes [here](https://openweathermap.org/current#multi).
 ``` py
-conn.set_lang("fr") #Equivalent to conn.units = "fr"
+conn.set_lang("fr") #Equivalent to conn.lang = "fr"
 ```
 
 ## Utility methods
