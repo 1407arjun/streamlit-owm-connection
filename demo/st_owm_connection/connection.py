@@ -139,5 +139,5 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
             return None
 
     # Utility function to get the icon URL
-    def get_icon_url(id: str) -> str:
+    def get_icon_url(self, id: str) -> str:
         return f"https://openweathermap.org/img/wn/{id}@2x.png"

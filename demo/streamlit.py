@@ -17,9 +17,35 @@ conn = st.experimental_connection('owm', type=OpenWeatherMapConnection)
 # Get the connection language using conn.lang attribute (default to en)
 
 st.subheader('Get the current weather')
-units_list = ["standard", "metric", "imperial"]
-st.selectbox("Select a unit for all data", units_list, index=units_list.index(conn.units), key='units',
-             help=None, on_change=lambda: conn.set_units(st.session_state.units), label_visibility="visible")
+display = st.empty()
+
+
+def set_weather_ui(weather, conn):
+    global display
+    with display:
+        if 'cod' in weather:
+            st.error(weather["message"], icon="🚨")
+        else:
+            icon, desc, name = st.columns(3)
+            with icon:
+                st.markdown(
+                    f"![]({conn.get_icon_url(weather['weather'][0]['icon'])})")
+            with desc:
+                st.header(weather["weather"][0]["main"])
+                st.subheader(weather["weather"][0]["description"])
+            with name:
+                st.header(weather["name"])
+
+
+select_unit, select_lang = st.columns(2)
+with select_unit:
+    units_list = ["standard", "metric", "imperial"]
+    st.selectbox("Select a unit for all data", units_list, index=units_list.index(conn.units), key='units',
+                 help=None, on_change=lambda: conn.set_units(st.session_state.units), label_visibility="visible")
+with select_lang:
+    lang_list = ["en", "fr", "de", "hi", "es", "it"]
+    st.selectbox("Select a language for all data", lang_list, index=lang_list.index(conn.lang), key='lang',
+                 help=None, on_change=lambda: conn.set_lang(st.session_state.lang), label_visibility="visible")
 
 col1, col2 = st.columns(2)
 
@@ -31,7 +57,7 @@ with col1:
 
         submitted = st.form_submit_button("Get weather for city")
         if submitted:
-            st.json(conn.current(q=q))
+            set_weather_ui(conn.current(q=q), conn)
 
     with st.form("weather_by_city_id"):
         st.markdown("**Search by city ID**")
@@ -40,7 +66,7 @@ with col1:
 
         submitted = st.form_submit_button("Get weather for city ID")
         if submitted:
-            st.json(conn.current(id=id))
+            set_weather_ui(conn.current(id=id), conn)
 
 with col2:
     with st.form("weather_by_latlon"):
@@ -55,7 +81,7 @@ with col2:
 
         submitted = st.form_submit_button("Get weather for coordinates")
         if submitted:
-            st.json(conn.current(lat=lat, lon=lon))
+            set_weather_ui(conn.current(lat=lat, lon=lon), conn)
 
     with st.form("weather_by_zipcode"):
         st.markdown("**Search by zipcode**")
@@ -64,4 +90,4 @@ with col2:
 
         submitted = st.form_submit_button("Get weather for zipcode")
         if submitted:
-            st.json(conn.current(zip=zip))
+            set_weather_ui(conn.current(zip=zip), conn)
