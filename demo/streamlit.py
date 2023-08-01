@@ -36,6 +36,12 @@ with display:
 
 
 def set_weather_ui(weather, conn):
+    if weather["cod"] == 200:
+        st.success(
+            'Data fetched successfully. Scroll to the top to view.', icon="✅")
+    else:
+        st.info(weather["message"], icon="ℹ️")
+
     global display, metrics
     with display:
         if weather["cod"] != 200:
