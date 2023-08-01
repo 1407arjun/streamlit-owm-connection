@@ -129,8 +129,45 @@ print(conn.forecast("hourly", id=833))
 print(conn.forecast("climate", zip="94105,US"))
 ```
 
+### reset() -> requests.sessions.Session
+Closes the current session and connection and creates a new [requests session](https://requests.readthedocs.io/en/latest/user/advanced/#session-objects), having the same AppID thereby resetting the previous connection.
+
+### session
+Use `conn.session` to access the underlying requests session object for the current connection.
+
+### units
+Use `conn.units` to access the currently used units for the current connection.
+
+### lang
+Use `conn.lang` to access the currently used output language for the current connection.
+
 ## Setter methods
 
 ### set_units(units: Literal["standard", "metric", "imperial"])
-Updates the global units preference to the value passed to the function. Must be one from standard/metric/imperial.
+`conn.set_units()` updates the global units preference to the value passed to the function. Must be one from standard/metric/imperial.
+``` py
+conn.set_units("imperial") #Equivalent to conn.units = "imperial"
+```
 
+### set_lang(lang: str)
+`conn.set_lang()` updates the global output language preference to the value passed to the function. View the supported languages and their codes [here](https://openweathermap.org/current#multi).
+``` py
+conn.set_lang("fr") #Equivalent to conn.units = "fr"
+```
+
+## Utility methods
+
+### get_icon_url(id: str) -> str
+Takes the icon ID as obtained in the API response and returns the URL to the icon, provided by OpenWeatherMap. An example usage is as follows:
+``` py
+weather = {
+    "id": 500,
+    "main": "Rain",
+    "description": "light rain",
+    "icon": "10n"
+}
+
+print(conn.get_icon_url(id="10n"))
+# Prints https://openweathermap.org/img/wn/10d.png
+```
+Check out the entire weather conditions taxonomy [here](https://openweathermap.org/weather-conditions).
