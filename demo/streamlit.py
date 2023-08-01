@@ -34,6 +34,8 @@ metrics = st.empty()
 with display:
     st.subheader('Get the current weather')
 
+# Utility function to create the UI to display weather/error messages
+
 
 def set_weather_ui(weather, conn):
     if weather["cod"] == 200:
@@ -82,7 +84,9 @@ def set_weather_ui(weather, conn):
                           value=f"{weather['main']['humidity']} %")
 
 
+# Global units and language preferences
 select_unit, select_lang = st.columns(2)
+
 with select_unit:
     units_list = ["standard", "metric", "imperial"]
     st.selectbox("Select a unit for all data", units_list, index=units_list.index(conn.units), key='units',
@@ -92,9 +96,11 @@ with select_lang:
     st.selectbox("Select a language for all data", lang_list, index=lang_list.index(conn.lang), key='lang',
                  help=None, on_change=lambda: conn.set_lang(st.session_state.lang), label_visibility="visible")
 
+# Forms to take user input
 col1, col2 = st.columns(2)
 
 with col1:
+    # Current weather by city name
     with st.form("weather_by_city"):
         st.markdown("**Search by city**")
         q = st.text_input("Enter the city", value="", key='q', type="default",
@@ -104,6 +110,7 @@ with col1:
         if submitted:
             set_weather_ui(conn.current(q=q), conn)
 
+    # Current weather by city ID
     with st.form("weather_by_city_id"):
         st.markdown("**Search by city ID**")
         id = st.number_input("Enter the city ID", key='id',
@@ -114,6 +121,7 @@ with col1:
             set_weather_ui(conn.current(id=id), conn)
 
 with col2:
+    # Current weather by coordinates
     with st.form("weather_by_latlon"):
         st.markdown("**Search by coordinates**")
         latitude, longitude = st.columns(2)
@@ -128,6 +136,7 @@ with col2:
         if submitted:
             set_weather_ui(conn.current(lat=lat, lon=lon), conn)
 
+    # Current weather by zipcode
     with st.form("weather_by_zipcode"):
         st.markdown("**Search by zipcode**")
         zip = st.text_input("Enter the zipcode", value="", key='zip', type="default",
