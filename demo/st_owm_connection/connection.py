@@ -70,7 +70,7 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
                 f"{BASE_URL}/weather?lat={lat}&lon={lon}&appid={self.__get_appid()}&units={units}&lang={lang}")
             return r.json()
 
-        @cache_data(ttl=ttl, show_spinner=f"Loading current weather for {zip}...")
+        @cache_data(ttl=ttl, show_spinner=f"Loading current weather for {id}...")
         def cityid(id: str, units: Literal["standard", "metric", "imperial"], lang: str):
             r = self.session.get(
                 f"{BASE_URL}/weather?id={id}&appid={self.__get_appid()}&units={units}&lang={lang}")
@@ -87,7 +87,7 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
         elif lat is not None and lon is not None:
             return latlon(lat, lon, units, lang)
         elif id is not None:
-            return cityid(id, lon, units, lang)
+            return cityid(id, units, lang)
         elif zip is not None:
             return zipcode(zip, units, lang)
         else:
@@ -115,7 +115,7 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
                 f"{ENDPOINT}/forecast/{type}?lat={lat}&lon={lon}&appid={self.__get_appid()}&units={units}&lang={lang}{count}")
             return r.json()
 
-        @cache_data(ttl=ttl, show_spinner=f"Loading {type} weather forecast for {zip}...")
+        @cache_data(ttl=ttl, show_spinner=f"Loading {type} weather forecast for {id}...")
         def cityid(id: str, count: str, units: Literal["standard", "metric", "imperial"], lang: str):
             r = self.session.get(
                 f"{ENDPOINT}/forecast/{type}?id={id}&appid={self.__get_appid()}&units={units}&lang={lang}{count}")
