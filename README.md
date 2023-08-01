@@ -148,13 +148,13 @@ Use `conn.lang` to access the currently used output language for the current con
 ### set_units(units: Literal["standard", "metric", "imperial"])
 `conn.set_units()` updates the global units preference to the value passed to the function. Must be one from standard/metric/imperial.
 ``` py
-conn.set_units("imperial") #Equivalent to conn.units = "imperial"
+conn.set_units("imperial") # Equivalent to conn.units = "imperial"
 ```
 
 ### set_lang(lang: str)
 `conn.set_lang()` updates the global output language preference to the value passed to the function. View the supported languages and their codes [here](https://openweathermap.org/current#multi).
 ``` py
-conn.set_lang("fr") #Equivalent to conn.lang = "fr"
+conn.set_lang("fr") # Equivalent to conn.lang = "fr"
 ```
 
 ## Utility methods
