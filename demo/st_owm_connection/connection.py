@@ -59,37 +59,37 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
         lang = lang if lang else self.lang
 
         @cache_data(ttl=ttl, show_spinner=f"Loading current weather for {q}...")
-        def query(q: str):
+        def query(q: str, units: Literal["standard", "metric", "imperial"], lang: str):
             r = self.session.get(
                 f"{BASE_URL}/weather?q={q}&appid={self.__get_appid()}&units={units}&lang={lang}")
             return r.json()
 
         @cache_data(ttl=ttl, show_spinner=f"Loading current weather for {lat}, {lon}...")
-        def latlon(lat: float, lon: float):
+        def latlon(lat: float, lon: float, units: Literal["standard", "metric", "imperial"], lang: str):
             r = self.session.get(
                 f"{BASE_URL}/weather?lat={lat}&lon={lon}&appid={self.__get_appid()}&units={units}&lang={lang}")
             return r.json()
 
         @cache_data(ttl=ttl, show_spinner=f"Loading current weather for {zip}...")
-        def cityid(id: str):
+        def cityid(id: str, units: Literal["standard", "metric", "imperial"], lang: str):
             r = self.session.get(
                 f"{BASE_URL}/weather?id={id}&appid={self.__get_appid()}&units={units}&lang={lang}")
             return r.json()
 
         @cache_data(ttl=ttl, show_spinner=f"Loading current weather for {zip}...")
-        def zipcode(zip: str):
+        def zipcode(zip: str, units: Literal["standard", "metric", "imperial"], lang: str):
             r = self.session.get(
                 f"{BASE_URL}/weather?zip={zip}&appid={self.__get_appid()}&units={units}&lang={lang}")
             return r.json()
 
         if q is not None:
-            return query(q=q)
+            return query(q, units, lang)
         elif lat is not None and lon is not None:
-            return latlon(lat=lat, lon=lon)
+            return latlon(lat, lon, units, lang)
         elif id is not None:
-            return cityid(id=id)
+            return cityid(id, lon, units, lang)
         elif zip is not None:
-            return zipcode(zip=zip)
+            return zipcode(zip, units, lang)
         else:
             return None
 
@@ -104,37 +104,37 @@ class OpenWeatherMapConnection(ExperimentalBaseConnection[Session]):
             "daily", "hourly", "climate"] else BASE_URL
 
         @cache_data(ttl=ttl, show_spinner=f"Loading {type} weather forecast for {q}...")
-        def query(q: str):
+        def query(q: str, count: str, units: Literal["standard", "metric", "imperial"], lang: str):
             r = self.session.get(
                 f"{ENDPOINT}/forecast/{type}?q={q}&appid={self.__get_appid()}&units={units}&lang={lang}{count}")
             return r.json()
 
         @cache_data(ttl=ttl, show_spinner=f"Loading {type} weather forecast for {lat}, {lon}...")
-        def latlon(lat: float, lon: float):
+        def latlon(lat: float, lon: float, count: str, units: Literal["standard", "metric", "imperial"], lang: str):
             r = self.session.get(
                 f"{ENDPOINT}/forecast/{type}?lat={lat}&lon={lon}&appid={self.__get_appid()}&units={units}&lang={lang}{count}")
             return r.json()
 
         @cache_data(ttl=ttl, show_spinner=f"Loading {type} weather forecast for {zip}...")
-        def cityid(id: str):
+        def cityid(id: str, count: str, units: Literal["standard", "metric", "imperial"], lang: str):
             r = self.session.get(
                 f"{ENDPOINT}/forecast/{type}?id={id}&appid={self.__get_appid()}&units={units}&lang={lang}{count}")
             return r.json()
 
         @cache_data(ttl=ttl, show_spinner=f"Loading {type} weather forecast for {zip}...")
-        def zipcode(zip: str):
+        def zipcode(zip: str, count: str, units: Literal["standard", "metric", "imperial"], lang: str):
             r = self.session.get(
                 f"{ENDPOINT}/forecast/{type}?zip={zip}&appid={self.__get_appid()}&units={units}&lang={lang}{count}")
             return r.json()
 
         if q is not None:
-            return query(q=q)
+            return query(q, count, units, lang)
         elif lat is not None and lon is not None:
-            return latlon(lat=lat, lon=lon)
+            return latlon(lat, lon, count, units, lang)
         elif id is not None:
-            return cityid(id=id)
+            return cityid(id, count, units, lang)
         elif zip is not None:
-            return zipcode(zip=zip)
+            return zipcode(zip, count, units, lang)
         else:
             return None
 
