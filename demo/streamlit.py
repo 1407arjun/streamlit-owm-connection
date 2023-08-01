@@ -3,8 +3,7 @@ from st_owm_connection import OpenWeatherMapConnection
 
 st.set_page_config(
     page_title='OpenWeatherMap API Explorer',
-    page_icon='🌤️',
-    layout="wide"
+    page_icon='🌤️'
 )
 
 st.title("🌤️ OpenWeatherMap API Explorer")
@@ -16,25 +15,52 @@ conn = st.experimental_connection('owm', type=OpenWeatherMapConnection)
 # Get the connection units using conn.units attribute (default to standard)
 # Get the connection language using conn.lang attribute (default to en)
 
-st.subheader('Get the current weather')
 display = st.empty()
+metrics = st.empty()
+
+with display:
+    st.subheader('Get the current weather')
 
 
 def set_weather_ui(weather, conn):
-    global display
+    global display, metrics
     with display:
-        if 'cod' in weather:
-            st.error(weather["message"], icon="🚨")
+        if weather["cod"] != 200:
+            with st.container():
+                st.subheader('Get the current weather')
+                st.info(weather["message"], icon="ℹ️")
         else:
-            icon, desc, name = st.columns(3)
-            with icon:
-                st.markdown(
-                    f"![]({conn.get_icon_url(weather['weather'][0]['icon'])})")
-            with desc:
-                st.header(weather["weather"][0]["main"])
-                st.subheader(weather["weather"][0]["description"])
-            with name:
-                st.header(weather["name"])
+            with st.container():
+                st.subheader(
+                    f"Current weather for {weather['name']}, {weather['sys'].get('country', '')}")
+                icon, desc = st.columns((2, 10))
+                with icon:
+                    st.markdown(
+                        f"![]({conn.get_icon_url(weather['weather'][0]['icon'])})")
+                with desc:
+                    st.markdown(f"### {weather['weather'][0]['main']}")
+                    st.caption(f"{weather['weather'][0]['description']}")
+
+    with metrics:
+        if weather["cod"] != 200:
+            st.write()
+        else:
+            temp, pressure, humidity = st.columns(3)
+            with temp:
+                if conn.units == "imperial":
+                    unit = "°F"
+                elif conn.units == "metric":
+                    unit = "°C"
+                else:
+                    unit = "K"
+                st.metric(label="Temperature",
+                          value=f"{weather['main']['temp']} {unit}")
+            with pressure:
+                st.metric(label="Pressure",
+                          value=f"{weather['main']['pressure']} hPa")
+            with humidity:
+                st.metric(label="Humidity",
+                          value=f"{weather['main']['humidity']} %")
 
 
 select_unit, select_lang = st.columns(2)
