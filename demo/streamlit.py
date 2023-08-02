@@ -118,7 +118,8 @@ with col1:
 
         submitted = st.form_submit_button("Get weather for city ID")
         if submitted:
-            set_weather_ui(conn.current(id=id), conn)
+            if id >= 0:
+                set_weather_ui(conn.current(id=id), conn)
 
 with col2:
     # Current weather by coordinates
@@ -134,7 +135,8 @@ with col2:
 
         submitted = st.form_submit_button("Get weather for coordinates")
         if submitted:
-            set_weather_ui(conn.current(lat=lat, lon=lon), conn)
+            if -90.00 <= lat <= 90.00 and -180.00 <= lon <= 179.99:
+                set_weather_ui(conn.current(lat=lat, lon=lon), conn)
 
     # Current weather by zipcode
     with st.form("weather_by_zipcode"):
